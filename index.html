@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deepfake Strategy Poster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS — edit these to restyle the entire poster
+     ============================================================ */
+  :root {
+    --bg:          #0D1117;        /* main background */
+    --surface:     #141B26;        /* card / section bg */
+    --surface-alt: #1A2436;        /* alternate card bg */
+    --accent:      #00E5C3;        /* primary teal accent */
+    --accent-dim:  rgba(0,229,195,0.12); /* teal tint fill */
+    --warn:        #F5A623;        /* amber highlight */
+    --warn-dim:    rgba(245,166,35,0.12);
+    --red:         #FF4560;        /* danger / alert */
+    --red-dim:     rgba(255,69,96,0.12);
+    --text:        #F0EEE9;        /* primary text */
+    --text-muted:  #8899A6;        /* secondary text */
+    --border:      rgba(0,229,195,0.18); /* subtle border */
+    --line:        rgba(0,229,195,0.35); /* connector lines */
+
+    /* Typography */
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body:    'Inter', sans-serif;
+    --font-mono:    'Space Mono', monospace;
+
+    /* Spacing */
+    --gap: 20px;
+    --radius: 6px;
+  }
+
+  /* ============================================================
+     GLOBAL RESET
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+
+  /* ============================================================
+     POSTER SHELL  (A3 portrait: 297 × 420 mm ≈ 1123 × 1587px at 96dpi)
+     Scaled to fit screen; for print export set width/height to exact mm
+     ============================================================ */
+  .poster {
+    width: 900px;
+    background: var(--bg);
+    font-family: var(--font-body);
+    color: var(--text);
+    position: relative;
+    overflow: hidden;
+    padding: 48px 44px 48px;
+    /* subtle scanline texture */
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,229,195,0.015) 2px,
+        rgba(0,229,195,0.015) 4px
+      );
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 36px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 28px;
+  }
+
+  .header-left {}
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  .title em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .title-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    line-height: 1.5;
+    max-width: 500px;
+    font-family: var(--font-body);
+  }
+
+  /* distorted face SVG icon -- SIGNATURE ELEMENT */
+  .face-icon {
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     STEP GRID LAYOUT
+     Two columns for steps that sit side by side, single col otherwise
+     ============================================================ */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+  }
+
+  /* steps that span full width */
+  .step-full { grid-column: 1 / -1; }
+
+  /* ============================================================
+     STEP CARD
+     ============================================================ */
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    position: relative;
+    /* left accent bar */
+    border-left: 3px solid var(--accent);
+  }
+
+  .step.warn  { border-left-color: var(--warn); }
+  .step.red   { border-left-color: var(--red); }
+  .step.plain { border-left-color: rgba(255,255,255,0.15); }
+
+  .step-number {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .step.warn  .step-number { color: var(--warn); }
+  .step.red   .step-number { color: var(--red); }
+
+  .step-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .step-body {
+    font-size: 12px;
+    line-height: 1.65;
+    color: rgba(240,238,233,0.82);
+  }
+
+  /* ============================================================
+     TAGS / CHIPS
+     ============================================================ */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: 2px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .tag.warn {
+    border-color: var(--warn);
+    color: var(--warn);
+    background: var(--warn-dim);
+  }
+
+  .tag.red {
+    border-color: var(--red);
+    color: var(--red);
+    background: var(--red-dim);
+  }
+
+  /* ============================================================
+     IDEA GRID (inside brainstorm)
+     ============================================================ */
+  .idea-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .idea-cell {
+    background: var(--surface-alt);
+    border: 1px solid rgba(0,229,195,0.1);
+    border-radius: 4px;
+    padding: 10px 10px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: rgba(240,238,233,0.78);
+  }
+
+  .idea-cell strong {
+    display: block;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+
+  .idea-cell.warn strong { color: var(--warn); }
+  .idea-cell.red  strong { color: var(--red);  }
+
+  /* ============================================================
+     SCAMPER TABLE
+     ============================================================ */
+  .scamper-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 11px;
+  }
+
+  .scamper-table th {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .scamper-table td {
+    padding: 7px 10px;
+    color: rgba(240,238,233,0.80);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .scamper-table td:first-child {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--warn);
+    font-weight: 700;
+    white-space: nowrap;
+    width: 30px;
+  }
+
+  /* ============================================================
+     SIX HATS GRID
+     ============================================================ */
+  .hats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .hat-cell {
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .hat-cell .hat-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hat-cell .hat-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* hat color backgrounds */
+  .hat-white  { background: rgba(240,238,233,0.06); }
+  .hat-red    { background: rgba(255,69,96,0.10); }
+  .hat-black  { background: rgba(100,110,130,0.18); }
+  .hat-yellow { background: rgba(245,166,35,0.12); }
+  .hat-green  { background: rgba(0,229,195,0.10); }
+  .hat-blue   { background: rgba(66,135,245,0.12); }
+
+  .dot-white  { background: #e0ddd6; }
+  .dot-red    { background: var(--red); }
+  .dot-black  { background: #7a8090; }
+  .dot-yellow { background: var(--warn); }
+  .dot-green  { background: var(--accent); }
+  .dot-blue   { background: #4287f5; }
+
+  /* ============================================================
+     EVALUATION MATRIX
+     ============================================================ */
+  .eval-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 11px;
+  }
+
+  .eval-table th {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eval-table th:first-child { text-align: left; }
+
+  .eval-table td {
+    padding: 7px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    text-align: center;
+    vertical-align: middle;
+    color: rgba(240,238,233,0.80);
+  }
+
+  .eval-table td:first-child { text-align: left; font-weight: 500; }
+
+  .dot-score {
+    display: inline-flex;
+    gap: 3px;
+  }
+
+  .ds { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .ds.on  { background: var(--accent); }
+  .ds.off { background: rgba(255,255,255,0.12); }
+  .ds.warn.on { background: var(--warn); }
+
+  .eval-winner {
+    background: var(--accent-dim);
+  }
+
+  /* ============================================================
+     SOLUTION CARD (final result)
+     ============================================================ */
+  .solution-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .solution-badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 2px;
+    background: var(--accent-dim);
+    white-space: nowrap;
+  }
+
+  .solution-name {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .pillar {
+    background: var(--surface-alt);
+    border-radius: 4px;
+    padding: 14px 14px;
+    border-top: 2px solid var(--accent);
+  }
+
+  .pillar.p2 { border-top-color: var(--warn); }
+  .pillar.p3 { border-top-color: var(--red); }
+
+  .pillar-title {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .pillar ul {
+    list-style: none;
+    font-size: 11px;
+    line-height: 1.7;
+    color: rgba(240,238,233,0.78);
+  }
+
+  .pillar ul li::before {
+    content: "/ ";
+    color: var(--accent);
+    font-family: var(--font-mono);
+  }
+
+  .pillar.p2 ul li::before { color: var(--warn); }
+  .pillar.p3 ul li::before { color: var(--red); }
+
+  /* ============================================================
+     CONNECTOR ARROW between sections
+     ============================================================ */
+  .connector {
+    text-align: center;
+    color: var(--line);
+    font-size: 18px;
+    line-height: 1;
+    margin: 2px 0;
+    letter-spacing: 2px;
+    font-family: var(--font-mono);
+  }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  .footer {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* ============================================================
+     INLINE HIGHLIGHT
+     ============================================================ */
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-w { color: var(--warn); font-weight: 600; }
+  .hl-r { color: var(--red); font-weight: 600; }
+
+  /* source citation inline */
+  .cite {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    font-style: italic;
+    display: block;
+    margin-top: 4px;
+  }
+
+  /* ============================================================
+     CONNECTOR LINE ART between steps (vertical dashed line)
+     ============================================================ */
+  .vline {
+    width: 1px;
+    margin: 0 auto;
+    height: 14px;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--line) 0, var(--line) 4px, transparent 4px, transparent 8px
+    );
+  }
+
+  /* small horizontal divider inside cards */
+  .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+    margin: 12px 0;
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
+  <div class="header">
+    <div class="header-left">
+      <div class="eyebrow">Creative Problem-Solving Process &nbsp;/&nbsp; Topic A</div>
+      <h1 class="title">Preventing the <em>Malicious Use</em><br>of Deepfakes on Social Media</h1>
+      <p class="title-sub">
+        A six-step creative strategy using fact-finding, brainstorming, SCAMPER,
+        Six Thinking Hats, evaluation, and implementation planning.
+      </p>
+    </div>
+
+    <!-- SIGNATURE ELEMENT: fragmented face SVG -->
+    <svg class="face-icon" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- face outline — left half intact, right half glitched -->
+      <circle cx="60" cy="55" r="38" stroke="#00E5C3" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.4"/>
+      <!-- left solid side -->
+      <path d="M60 17 C40 17 22 34 22 55 C22 73 36 88 55 91 L60 91 L60 17Z" fill="rgba(0,229,195,0.06)" stroke="#00E5C3" stroke-width="1.2"/>
+      <!-- right glitched side — offset slices -->
+      <path d="M60 17 L60 38 L68 38 L68 17Z" fill="rgba(0,229,195,0.04)" stroke="#00E5C3" stroke-width="0.8" opacity="0.6"/>
+      <path d="M60 40 L60 60 L72 60 L72 40Z" fill="rgba(0,229,195,0.04)" stroke="#00E5C3" stroke-width="0.8" opacity="0.5" transform="translate(5,0)"/>
+      <path d="M60 62 L60 80 L66 80 L66 62Z" fill="rgba(0,229,195,0.04)" stroke="#00E5C3" stroke-width="0.8" opacity="0.6" transform="translate(-2,0)"/>
+      <path d="M60 80 L60 91 L65 91 L65 80Z" fill="rgba(0,229,195,0.04)" stroke="#00E5C3" stroke-width="0.8" opacity="0.4" transform="translate(3,0)"/>
+      <!-- glitch bars -->
+      <rect x="65" y="42" width="22" height="3" fill="#00E5C3" opacity="0.15" rx="1"/>
+      <rect x="61" y="60" width="18" height="2" fill="#F5A623" opacity="0.2" rx="1"/>
+      <rect x="63" y="72" width="14" height="2" fill="#FF4560" opacity="0.18" rx="1"/>
+      <!-- eyes -->
+      <circle cx="48" cy="50" r="3" fill="#00E5C3" opacity="0.7"/>
+      <circle cx="48" cy="50" r="1.2" fill="#0D1117"/>
+      <!-- right eye — fragmented -->
+      <circle cx="73" cy="50" r="3" stroke="#00E5C3" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+      <!-- mouth — left half present -->
+      <path d="M46 67 Q55 72 60 70" stroke="#00E5C3" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+      <!-- scan line across face -->
+      <rect x="22" y="55" width="76" height="1" fill="#00E5C3" opacity="0.12"/>
+      <!-- pixel noise corners -->
+      <rect x="20" y="20" width="4" height="4" fill="#00E5C3" opacity="0.3" rx="0"/>
+      <rect x="96" y="24" width="3" height="3" fill="#FF4560" opacity="0.4" rx="0"/>
+      <rect x="16" y="88" width="4" height="4" fill="#F5A623" opacity="0.3" rx="0"/>
+    </svg>
+  </div>
+
+  <!-- ============================================================
+       STEP 1 + STEP 2 — side by side (narrow cards)
+       ============================================================ -->
+  <div class="steps-grid">
+
+    <!-- STEP 1: FACT FINDING -->
+    <div class="step">
+      <span class="step-number">Step 01 &nbsp;/&nbsp; Fact Finding</span>
+      <div class="step-title">What is the actual problem?</div>
+      <div class="step-body">
+        Deepfakes use <span class="hl">generative AI</span> to synthesise convincing fake video and audio of real people. Their weaponisation on social media is accelerating across three harm vectors:
+      </div>
+      <div class="idea-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top:10px;">
+        <div class="idea-cell red">
+          <strong>Political</strong>
+          Fabricated statements from world leaders used to manipulate elections or incite conflict.
+        </div>
+        <div class="idea-cell warn">
+          <strong>Personal</strong>
+          Non-consensual intimate imagery targeting private individuals — overwhelmingly women.
+        </div>
+        <div class="idea-cell">
+          <strong>Financial</strong>
+          CEO voice/video fraud and fake endorsements draining consumer trust and funds.
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="step-body">
+        <span class="cite">Sources: Sensity AI (2023); EU DSA Impact Assessment; Stanford Internet Observatory.</span>
+        Key assumptions: detection tools lag behind generation tools; platforms currently lack uniform enforcement; public media literacy is low.
+      </div>
+      <div class="tags" style="margin-top:10px;">
+        <span class="tag red">High Urgency</span>
+        <span class="tag warn">Cross-border</span>
+        <span class="tag">AI-Generated</span>
+      </div>
+    </div>
+
+    <!-- STEP 2: PROBLEM DEFINITION -->
+    <div class="step warn">
+      <span class="step-number">Step 02 &nbsp;/&nbsp; Problem Definition</span>
+      <div class="step-title">Problem Statement</div>
+      <div class="step-body">
+        Social media platforms currently lack a <span class="hl-w">coordinated, technically enforced, and publicly trusted</span> system for detecting and limiting the spread of malicious deepfakes — allowing harmful synthetic media to circulate at scale before harm can be contained.
+      </div>
+      <div class="divider"></div>
+      <div class="step-body" style="font-size:11.5px;">
+        <strong style="font-family:var(--font-display); font-size:12px;">Why does this matter?</strong><br>
+        <br>
+        Once viral, content is nearly impossible to fully retract. The damage — to reputation, democracy, and personal safety — persists long after takedowns. A <span class="hl-w">prevention + rapid response</span> approach is required, not detection alone.
+      </div>
+      <div class="divider"></div>
+      <div class="step-body">
+        <strong>Constraints to design around:</strong><br>
+        Free expression boundaries &nbsp;/&nbsp; Cross-jurisdictional law &nbsp;/&nbsp; Platform business incentives &nbsp;/&nbsp; Public scepticism of censorship
+      </div>
+    </div>
+
+  </div><!-- end first row -->
+
+  <div class="vline" style="height:12px;"></div>
+
+  <!-- STEP 3: BRAINSTORMING — full width -->
+  <div class="steps-grid">
+    <div class="step step-full">
+      <span class="step-number">Step 03 &nbsp;/&nbsp; Idea Finding — Brainstorm</span>
+      <div class="step-title">Raw ideas — no filtering yet</div>
+      <div class="idea-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="idea-cell">
+          <strong>Platform</strong>
+          Mandatory AI-content labelling at upload; deepfake flag embedded in video metadata.
+        </div>
+        <div class="idea-cell">
+          <strong>Detection API</strong>
+          Open-access detection API shared across platforms so no single actor gatekeeps.
+        </div>
+        <div class="idea-cell warn">
+          <strong>Consent Layer</strong>
+          Biometric consent ledger: public figures can register approved synthetic likenesses.
+        </div>
+        <div class="idea-cell">
+          <strong>Media Literacy</strong>
+          Mandatory short-form media literacy modules embedded directly into platform onboarding flows.
+        </div>
+        <div class="idea-cell red">
+          <strong>Legal</strong>
+          Fast-track civil injunction for victims without requiring criminal prosecution first.
+        </div>
+        <div class="idea-cell">
+          <strong>Provenance</strong>
+          C2PA-style cryptographic content credentials: every video carries a verifiable origin chain.
+        </div>
+        <div class="idea-cell warn">
+          <strong>Reporting UX</strong>
+          One-tap deepfake report that escalates to a specialist review queue, not generic moderation.
+        </div>
+        <div class="idea-cell">
+          <strong>Watermarking</strong>
+          Invisible steganographic watermarks embedded by AI generation tools at creation time.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vline" style="height:12px;"></div>
+
+  <!-- STEP 4: SCAMPER — full width -->
+  <div class="steps-grid">
+    <div class="step step-full plain" style="border-left-color: var(--warn);">
+      <span class="step-number" style="color:var(--warn);">Step 04 &nbsp;/&nbsp; Idea Finding — SCAMPER</span>
+      <div class="step-title">Reworking existing mechanisms for a new threat</div>
+      <table class="scamper-table">
+        <thead>
+          <tr>
+            <th>—</th>
+            <th>Lens</th>
+            <th>Application to deepfake mitigation</th>
+            <th>Resulting idea</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>S</td>
+            <td>Substitute</td>
+            <td>Replace human moderators with AI pre-screening for flagging (not final removal)</td>
+            <td>AI triage layer; humans review edge cases only</td>
+          </tr>
+          <tr>
+            <td>C</td>
+            <td>Combine</td>
+            <td>Merge watermarking + content credentials into a single upload pipeline</td>
+            <td>Universal synthetic media passport on every video</td>
+          </tr>
+          <tr>
+            <td>A</td>
+            <td>Adapt</td>
+            <td>Adapt pharmaceutical adverse-event reporting to malicious AI incidents</td>
+            <td>Mandatory platform reporting to a centralised harm registry</td>
+          </tr>
+          <tr>
+            <td>M</td>
+            <td>Modify</td>
+            <td>Scale existing Terms of Service strike systems to deepfake-specific severity tiers</td>
+            <td>3-tier strike system: label &rarr; restrict &rarr; remove + ban</td>
+          </tr>
+          <tr>
+            <td>P</td>
+            <td>Put to other uses</td>
+            <td>Repurpose election integrity task forces for year-round synthetic media response</td>
+            <td>Permanent cross-platform rapid response unit</td>
+          </tr>
+          <tr>
+            <td>E</td>
+            <td>Eliminate</td>
+            <td>Remove anonymous re-upload pathways for flagged synthetic content</td>
+            <td>Perceptual hash blocklists that prevent re-upload of removed deepfakes</td>
+          </tr>
+          <tr>
+            <td>R</td>
+            <td>Reverse</td>
+            <td>Instead of removing after harm, require opt-in consent for synthetic likeness at creation</td>
+            <td>Consent-at-source framework embedded in generative AI tools</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="vline" style="height:12px;"></div>
+
+  <!-- STEP 5: SIX THINKING HATS — full width -->
+  <div class="steps-grid">
+    <div class="step step-full" style="border-left-color:#4287f5;">
+      <span class="step-number" style="color:#4287f5;">Step 05 &nbsp;/&nbsp; Solution Finding — Six Thinking Hats</span>
+      <div class="step-title">Multi-angle evaluation of the shortlisted ideas</div>
+      <div class="hats-grid">
+        <div class="hat-cell hat-white">
+          <div class="hat-label"><span class="hat-dot dot-white"></span> White — Facts</div>
+          Deepfake detection accuracy reaches ~90% on known models but drops sharply on novel architectures. C2PA provenance already adopted by Adobe, Microsoft, and major camera makers. 96% of deepfake content is non-consensual intimate imagery (Sensity, 2023).
+        </div>
+        <div class="hat-cell hat-red">
+          <div class="hat-label"><span class="hat-dot dot-red"></span> Red — Intuition</div>
+          A "synthetic passport" on every video feels invasive to creators making legitimate artistic work. Victims want faster action — regulatory timelines feel incompatible with viral speed.
+        </div>
+        <div class="hat-cell hat-black">
+          <div class="hat-label"><span class="hat-dot dot-black"></span> Black — Caution</div>
+          Detection tools can be evaded. Watermarks can be stripped. Consent frameworks require international legal harmonisation which is slow. Over-enforcement risks suppressing satire and parody.
+        </div>
+        <div class="hat-cell hat-yellow">
+          <div class="hat-label"><span class="hat-dot dot-yellow"></span> Yellow — Benefits</div>
+          Combining provenance + detection + literacy addresses the problem at three distinct layers. The rapid response unit creates accountability without requiring new legislation immediately.
+        </div>
+        <div class="hat-cell hat-green">
+          <div class="hat-label"><span class="hat-dot dot-green"></span> Green — Creativity</div>
+          What if platforms competed on trust scores instead of engagement rates? A public "synthetic integrity index" could make safety a commercial differentiator rather than a compliance burden.
+        </div>
+        <div class="hat-cell hat-blue">
+          <div class="hat-label"><span class="hat-dot dot-blue"></span> Blue — Process</div>
+          No single mechanism is sufficient. The strongest strategy layers technical controls (provenance + detection), platform policy (strike tiers + rapid response), and social infrastructure (literacy + legal support).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vline" style="height:12px;"></div>
+
+  <!-- STEP 5b: EVALUATION MATRIX — full width -->
+  <div class="steps-grid">
+    <div class="step step-full" style="border-left-color: rgba(255,255,255,0.2);">
+      <span class="step-number">Step 05b &nbsp;/&nbsp; Evaluation Matrix</span>
+      <div class="step-title">Shortlisted solutions scored across four criteria</div>
+      <table class="eval-table">
+        <thead>
+          <tr>
+            <th>Solution</th>
+            <th>Effectiveness</th>
+            <th>Feasibility</th>
+            <th>Scalability</th>
+            <th>Victim Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Detection API (shared)</td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds off"></span><span class="ds off"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds off"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds off"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds off"></span><span class="ds off"></span><span class="ds off"></span></span></td>
+          </tr>
+          <tr>
+            <td>Legal fast-track injunction</td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds off"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds off"></span><span class="ds off"></span><span class="ds off"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds off"></span><span class="ds off"></span><span class="ds off"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span></span></td>
+          </tr>
+          <tr class="eval-winner">
+            <td><strong style="color:var(--accent);">3-Layer Strategy (recommended)</strong></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds off"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span></span></td>
+          </tr>
+          <tr>
+            <td>Platform labelling only</td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds off"></span><span class="ds off"></span><span class="ds off"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds on"></span><span class="ds off"></span></span></td>
+            <td><span class="dot-score"><span class="ds on"></span><span class="ds off"></span><span class="ds off"></span><span class="ds off"></span><span class="ds off"></span></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="vline" style="height:12px;"></div>
+
+  <!-- STEP 6: FINAL SOLUTION / ADOPTION -->
+  <div class="steps-grid">
+    <div class="step step-full" style="border-left-color:var(--accent); background: rgba(0,229,195,0.04);">
+      <span class="step-number">Step 06 &nbsp;/&nbsp; Acceptance Finding — Final Strategy</span>
+      <div class="solution-header">
+        <span class="solution-badge">Recommended</span>
+        <div class="solution-name">The Three-Layer Deepfake Defence Framework</div>
+      </div>
+      <div class="pillars">
+        <!-- PILLAR 1 -->
+        <div class="pillar">
+          <div class="pillar-title" style="color:var(--accent);">Layer 1 — Technical</div>
+          <ul>
+            <li>Shared cross-platform detection API, open access</li>
+            <li>C2PA content credentials on all video uploads</li>
+            <li>Perceptual hash blocklist to prevent re-upload</li>
+            <li>AI watermarking embedded at generation source</li>
+          </ul>
+        </div>
+        <!-- PILLAR 2 -->
+        <div class="pillar p2">
+          <div class="pillar-title" style="color:var(--warn);">Layer 2 — Platform Policy</div>
+          <ul>
+            <li>3-tier strike system: label, restrict, remove + ban</li>
+            <li>Specialist deepfake review queue (not generic mod)</li>
+            <li>Cross-platform rapid response unit, always active</li>
+            <li>Mandatory incident reporting to centralised registry</li>
+          </ul>
+        </div>
+        <!-- PILLAR 3 -->
+        <div class="pillar p3">
+          <div class="pillar-title" style="color:var(--red);">Layer 3 — Social + Legal</div>
+          <ul>
+            <li>Media literacy embedded in platform onboarding</li>
+            <li>Fast-track civil injunctions for victims</li>
+            <li>Consent-at-source framework for generative tools</li>
+            <li>Public synthetic integrity trust score for platforms</li>
+          </ul>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="step-body" style="font-size:11.5px;">
+        <strong>Implementation pathway:</strong> &nbsp;
+        <span class="hl">Phase 1 (0-6 months)</span> — Deploy detection API and upload labelling, no new legislation required. &nbsp;
+        <span class="hl-w">Phase 2 (6-18 months)</span> — Establish rapid response unit via platform coalition; roll out literacy modules. &nbsp;
+        <span class="hl-r">Phase 3 (18 months+)</span> — Advocate for legal frameworks enabling fast-track victim remedies and consent-at-source mandates.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <div class="footer">
+    <div>Creative Problem-Solving &nbsp;/&nbsp; Topic A &nbsp;/&nbsp; Individual Poster</div>
+    <div>Idea generation: collaborative &nbsp;/&nbsp; Poster design: individual</div>
+    <div>VinUniversity &nbsp;//&nbsp; 2024</div>
+  </div>
+
+</div><!-- end poster -->
+</body>
+</html>
